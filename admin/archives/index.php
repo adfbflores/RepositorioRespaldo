@@ -1,13 +1,25 @@
 <?php 
-require_once('../config.php');
-
-// Obtener datos de archivos y materias
-$qry = $conn->query("SELECT * FROM archive_list ORDER BY `year` DESC, `title` DESC ");
-$curriculum = $conn->query("SELECT * FROM curriculum_list WHERE id IN (SELECT curriculum_id FROM `archive_list`)");
-
-// Crear un array asociativo de materias con el ID como clave y el nombre como valor
-$cur_arr = array_column($curriculum->fetch_all(MYSQLI_ASSOC), 'name', 'id');
+require_once('../../config.php');
+require_once('../inc/header.php');
+require_once('../inc/navigation.php');
 ?>
+
+<?php
+// Obtener datos de archivos y materias con manejo de errores
+$qry = $conn->query("SELECT * FROM archive_list ORDER BY `year` DESC, `title` DESC ");
+if (!$qry) {
+    echo "<div class='alert alert-danger'>Error al consultar archive_list: " . $conn->error . "</div>";
+}
+
+$curriculum = $conn->query("SELECT * FROM curriculum_list WHERE id IN (SELECT curriculum_id FROM archive_list)");
+$cur_arr = [];
+if ($curriculum) {
+    $cur_arr = array_column($curriculum->fetch_all(MYSQLI_ASSOC), 'name', 'id');
+} else {
+    echo "<div class='alert alert-warning'>Error al consultar curriculum_list: " . $conn->error . "</div>";
+}
+?>
+
 <style>
     .img-avatar {
         width: 45px;
@@ -17,12 +29,12 @@ $cur_arr = array_column($curriculum->fetch_all(MYSQLI_ASSOC), 'name', 'id');
         border-radius: 100%;
     }
 </style>
-<div class="card card-outline card-primary">
-    <div class="card-header">
-        <h3 class="card-title">Lista de archivos</h3>
-    </div>
-    <div class="card-body">
-        <div class="container-fluid">
+<div class="content-wrapper">
+    <div class="card card-outline card-primary m-3">
+        <div class="card-header">
+            <h3 class="card-title">Lista de archivos</h3>
+        </div>
+        <div class="card-body">
             <div class="container-fluid">
                 <table class="table table-hover table-striped">
                     <colgroup>
@@ -47,15 +59,16 @@ $cur_arr = array_column($curriculum->fetch_all(MYSQLI_ASSOC), 'name', 'id');
                     </thead>
                     <tbody>
                         <?php 
-                            $i = 1;
-                            while($row = $qry->fetch_assoc()):
+                            if ($qry):
+                                $i = 1;
+                                while($row = $qry->fetch_assoc()):
                         ?>
                             <tr>
-                                <td class="text-center"><?php echo $i++; ?></td>
-                                <td class=""><?php echo date("Y-m-d H:i", strtotime($row['date_created'])) ?></td>
-                                <td><?php echo htmlspecialchars($row['archive_code']) ?></td>
-                                <td><?php echo ucwords($row['title']) ?></td>
-                                <td><?php echo $cur_arr[$row['curriculum_id']] ?></td>
+                                <td class="text-center"><?= $i++ ?></td>
+                                <td><?= date("Y-m-d H:i", strtotime($row['date_created'])) ?></td>
+                                <td><?= htmlspecialchars($row['archive_code']) ?></td>
+                                <td><?= ucwords($row['title']) ?></td>
+                                <td><?= $cur_arr[$row['curriculum_id']] ?? 'No definido' ?></td>
                                 <td class="text-center">
                                     <?php
                                         switch($row['status']){
@@ -74,21 +87,22 @@ $cur_arr = array_column($curriculum->fetch_all(MYSQLI_ASSOC), 'name', 'id');
                                         <span class="sr-only">Toggle Dropdown</span>
                                       </button>
                                       <div class="dropdown-menu" role="menu">
-                                        <a class="dropdown-item" href="<?= base_url ?>/?page=view_archive&id=<?php echo $row['id'] ?>" target="_blank"><span class="fa fa-external-link-alt text-gray"></span> Ver</a>
+                                        <a class="dropdown-item" href="<?= base_url ?>/?page=view_archive&id=<?= $row['id'] ?>" target="_blank"><span class="fa fa-external-link-alt text-gray"></span> Ver</a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item update_status" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>" data-status="<?php echo $row['status'] ?>"><span class="fa fa-check text-dark"></span> Actualizar estado</a>
+                                        <a class="dropdown-item update_status" href="javascript:void(0)" data-id="<?= $row['id'] ?>" data-status="<?= $row['status'] ?>"><span class="fa fa-check text-dark"></span> Actualizar estado</a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?php echo $row['id'] ?>"><span class="fa fa-trash text-danger"></span> Eliminar</a>
+                                        <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?= $row['id'] ?>"><span class="fa fa-trash text-danger"></span> Eliminar</a>
                                       </div>
                                 </td>
                             </tr>
-                        <?php endwhile; ?>
+                        <?php endwhile; endif; ?>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 </div>
+
 <script>
     $(document).ready(function(){
         $('.delete_data').click(function(){
@@ -100,7 +114,7 @@ $cur_arr = array_column($curriculum->fetch_all(MYSQLI_ASSOC), 'name', 'id');
         $('.table td,.table th').addClass('py-1 px-2 align-middle')
         $('.table').dataTable({
             columnDefs: [
-                { orderable: false, targets: 5 }
+                { orderable: false, targets: 6 }
             ],
         });
     })
@@ -127,3 +141,4 @@ $cur_arr = array_column($curriculum->fetch_all(MYSQLI_ASSOC), 'name', 'id');
         })
     }
 </script>
+<?php include('../inc/footer.php'); ?>

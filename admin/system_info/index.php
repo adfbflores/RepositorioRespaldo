@@ -1,4 +1,10 @@
 <?php
+require_once('../../config.php');
+require_once('../inc/header.php');
+require_once('../inc/navigation.php');
+?>
+
+<?php
 // Verifica si hay un mensaje flash de éxito y muestra una notificación
 if ($_settings->chk_flashdata('success')): ?>
     <script>

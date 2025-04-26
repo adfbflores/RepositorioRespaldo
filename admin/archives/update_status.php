@@ -1,47 +1,63 @@
+<?php
+require_once('../../config.php');
+
+if (!isset($_GET['id']) || !isset($_GET['status'])) {
+    echo "<div class='alert alert-danger'>Faltan parámetros requeridos.</div>";
+    exit;
+}
+
+$id = (int) $_GET['id'];
+$status = (int) $_GET['status'];
+$valid_status = [0, 1];
+
+if (!in_array($status, $valid_status)) {
+    echo "<div class='alert alert-danger'>Estado inválido.</div>";
+    exit;
+}
+
+$q = $conn->prepare("SELECT * FROM archive_list WHERE id = ?");
+$q->bind_param("i", $id);
+$q->execute();
+$result = $q->get_result();
+
+if ($result->num_rows < 1) {
+    echo "<div class='alert alert-warning'>No se encontró el archivo.</div>";
+    exit;
+}
+
+$data = $result->fetch_assoc();
+?>
+
 <div class="container-fluid">
-    <form action="" id="update_status_form">
-        <input type="hidden" name="id" value="<?= htmlspecialchars($_GET['id'] ?? '') ?>">
-        <div class="form-group">
-            <label for="status" class="control-label text-navy">Estado</label>
-            <select name="status" id="status" class="form-control form-control-border" required>
-                <option value="0" <?= ($_GET['status'] ?? '') == '0' ? 'selected' : '' ?>>Despublicar</option>
-                <option value="1" <?= ($_GET['status'] ?? '') == '1' ? 'selected' : '' ?>>Publicar</option>
-            </select>
-        </div>
+    <form action="" id="update-status-form">
+        <input type="hidden" name="id" value="<?= $id ?>">
+        <input type="hidden" name="status" value="<?= $status ?>">
+        <p>¿Está seguro que desea <strong><?= $status == 1 ? 'PUBLICAR' : 'DESPUBLICAR' ?></strong> el archivo <strong><?= htmlspecialchars($data['title']) ?></strong>?</p>
     </form>
 </div>
+
 <script>
     $(function(){
-        $('#update_status_form').submit(function(e){
+        $('#update-status-form').submit(function(e){
             e.preventDefault();
             start_loader();
-            var el = $('<div>');
-            el.addClass("pop-msg alert");
-            el.hide();
             $.ajax({
-                url: _base_url_ + "classes/Master.php?f=update_status",
+                url: _base_url_ + "classes/Master.php?f=update_archive_status",
                 method: "POST",
                 data: $(this).serialize(),
                 dataType: "json",
-                error: function(err){
-                    console.log(err);
-                    alert_toast("Ocurrió un error al guardar los datos.", "error");
+                error: err => {
+                    console.error(err);
+                    alert_toast("Ocurrió un error", 'error');
                     end_loader();
                 },
                 success: function(resp){
-                    console.log(resp);
-                    if(resp.status === 'success'){
-                        location.reload();
-                    } else if(resp.msg){
-                        el.addClass("alert-danger");
-                        el.text(resp.msg);
-                        $('#update_status_form').prepend(el);
+                    if(resp.status == 'success'){
+                        alert_toast("Estado actualizado", 'success');
+                        setTimeout(() => location.reload(), 1000);
                     } else {
-                        el.addClass("alert-danger");
-                        el.text("Ocurrió un error debido a una razón desconocida.");
-                        $('#update_status_form').prepend(el);
+                        alert_toast("No se pudo actualizar", 'error');
                     }
-                    el.show('slow');
                     end_loader();
                 }
             });
