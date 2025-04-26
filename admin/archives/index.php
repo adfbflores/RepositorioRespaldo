@@ -30,7 +30,16 @@ if ($curriculum) {
     }
 </style>
 
-    <div class="card card-outline card-primary m-3">
+<div class="card-header">
+  <h3 class="card-title">Lista de Tesis</h3>
+  <div class="card-tools">
+    <a href="<?= base_url ?>admin/archives/manage_archive.php" class="btn btn-flat btn-primary btn-sm">
+      <i class="fas fa-plus"></i> Nueva Tesis
+    </a>
+  </div>
+</div>
+    
+<div class="card card-outline card-primary m-3">
         <div class="card-header">
             <h3 class="card-title">Lista de archivos</h3>
         </div>
@@ -87,12 +96,19 @@ if ($curriculum) {
                                         <span class="sr-only">Toggle Dropdown</span>
                                       </button>
                                       <div class="dropdown-menu" role="menu">
-                                        <a class="dropdown-item" href="<?= base_url ?>/?page=view_archive&id=<?= $row['id'] ?>" target="_blank"><span class="fa fa-external-link-alt text-gray"></span> Ver</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item update_status" href="javascript:void(0)" data-id="<?= $row['id'] ?>" data-status="<?= $row['status'] ?>"><span class="fa fa-check text-dark"></span> Actualizar estado</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?= $row['id'] ?>"><span class="fa fa-trash text-danger"></span> Eliminar</a>
-                                      </div>
+                                            <a class="dropdown-item view_data" href="javascript:void(0)" data-id="<?= $row['id'] ?>">
+                                                <span class="fa fa-eye text-dark"></span> Ver Detalles
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item update_status" href="javascript:void(0)" data-id="<?= $row['id'] ?>" data-status="<?= $row['status'] ?>">
+                                                <span class="fa fa-check text-dark"></span> Actualizar Estado
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a class="dropdown-item delete_data" href="javascript:void(0)" data-id="<?= $row['id'] ?>">
+                                                <span class="fa fa-trash text-danger"></span> Eliminar
+                                            </a>
+                                        </div>
+
                                 </td>
                             </tr>
                         <?php endwhile; endif; ?>
@@ -139,5 +155,13 @@ if ($curriculum) {
             }
         })
     }
+
+    $(document).ready(function(){
+    // Acción para botón "Ver Detalles"
+    $('.view_data').click(function(){
+        uni_modal("Detalles de Tesis", "archives/view_archive.php?id=" + $(this).attr('data-id'));
+    });
+});
+
 </script>
 <?php include('../inc/footer.php'); ?>
