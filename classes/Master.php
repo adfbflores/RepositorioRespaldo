@@ -282,6 +282,52 @@ class Master extends DBConnection {
         return json_encode($resp);
     }
 
+    public function save_archive_admin(){
+        extract($_POST);
+        $upload_path = '';
+        $old_file = '';
+    
+        if (!empty($id)) {
+            $qry = $this->conn->query("SELECT file_path FROM archive_list WHERE id = '{$id}'");
+            if($qry->num_rows > 0){
+                $old_file = $qry->fetch_assoc()['file_path'];
+            }
+        }
+    
+        if (!empty($_FILES['file']['tmp_name'])) {
+            $filename = time() . "_" . $_FILES['file']['name'];
+            $upload_path = "uploads/tesis/" . $filename;
+    
+            if (!move_uploaded_file($_FILES['file']['tmp_name'], base_app . $upload_path)) {
+                return json_encode(['status' => 'failed', 'msg' => 'No se pudo subir el archivo nuevo.']);
+            }
+    
+            if (!empty($old_file) && file_exists(base_app . $old_file)) {
+                unlink(base_app . $old_file);
+            }
+        }
+    
+        if (empty($upload_path) && !empty($old_file)) {
+            $upload_path = $old_file;
+        }
+    
+        if (empty($id)) {
+            $sql = "INSERT INTO archive_list (archive_code, title, members, curriculum_id, year, abstract, file_path, status) VALUES (?, ?, ?, ?, ?, ?, ?, 1)";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("sssisss", $archive_code, $title, $members, $curriculum_id, $year, $abstract, $upload_path);
+        } else {
+            $sql = "UPDATE archive_list SET archive_code=?, title=?, members=?, curriculum_id=?, year=?, abstract=?, file_path=? WHERE id=?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("sssisssi", $archive_code, $title, $members, $curriculum_id, $year, $abstract, $upload_path, $id);
+        }
+    
+        if($stmt->execute()) {
+            return json_encode(['status' => 'success']);
+        } else {
+            return json_encode(['status' => 'failed', 'msg' => 'Error al guardar en base de datos.']);
+        }
+    }        
+    
     // Método para actualizar el estado de un archivo
     function update_status(){
         extract($_POST);
