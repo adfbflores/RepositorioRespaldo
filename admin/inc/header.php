@@ -49,6 +49,9 @@ require_once('sess_auth.php');
     <link rel="stylesheet" href="<?= htmlspecialchars(base_url, ENT_QUOTES, 'UTF-8') ?>plugins/summernote/summernote-bs4.min.css">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="<?= htmlspecialchars(base_url, ENT_QUOTES, 'UTF-8') ?>plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    
+    <link rel="stylesheet" href="custom_admin.css">
+
     <!-- Estilos adicionales -->
     <style type="text/css">
         /* Chart.js */
@@ -99,10 +102,13 @@ require_once('sess_auth.php');
         // Definir la URL base para su uso en scripts
         var _base_url_ = '<?= htmlspecialchars(base_url, ENT_QUOTES, 'UTF-8') ?>';
     </script>
-    <!-- Script principal -->
+    
     <script src="<?= htmlspecialchars(base_url, ENT_QUOTES, 'UTF-8') ?>dist/js/script.js"></script>
+
+    <script src="<?= base_url ?>dist/js/script.js"></script>
+
 </head>
-<body>
-    <!-- Aquí el contenido del cuerpo -->
+<body class="hold-transition sidebar-mini layout-fixed">
+    
 </body>
 </html>

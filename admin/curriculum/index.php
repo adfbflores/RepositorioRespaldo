@@ -1,3 +1,9 @@
+<?php
+require_once('../../config.php');
+require_once('../inc/header.php');
+require_once('../inc/navigation.php');
+?>
+
 <style>
     .img-avatar{
         width:45px;
@@ -138,3 +144,6 @@
         });
     }
 </script>
+
+<?php include('../inc/footer.php'); ?>
+

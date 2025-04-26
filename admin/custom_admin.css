@@ -1,0 +1,14 @@
+/* Ajustes para íconos del menú lateral */
+.sidebar .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sidebar.collapsed .nav-link .nav-text {
+  display: none;
+}
+
+.sidebar .nav-link i {
+  font-size: 1.2rem;
+}
