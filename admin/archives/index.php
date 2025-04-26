@@ -1,7 +1,7 @@
 <?php 
-require_once('../../config.php');
-require_once('../inc/header.php');
-require_once('../inc/navigation.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/header.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/navigation.php');
 ?>
 
 <?php
@@ -29,7 +29,7 @@ if ($curriculum) {
         border-radius: 100%;
     }
 </style>
-<div class="content-wrapper">
+
     <div class="card card-outline card-primary m-3">
         <div class="card-header">
             <h3 class="card-title">Lista de archivos</h3>
@@ -101,7 +101,6 @@ if ($curriculum) {
             </div>
         </div>
     </div>
-</div>
 
 <script>
     $(document).ready(function(){

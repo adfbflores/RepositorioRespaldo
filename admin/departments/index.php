@@ -1,108 +1,108 @@
 <?php
-require_once('../../config.php');
-require_once('../inc/header.php');
-require_once('../inc/navigation.php');
+// Inclusión segura desde cualquier subcarpeta
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/header.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/navigation.php');
+
+// Consulta a la base de datos
+$qry = $conn->query("SELECT d.*, d.date_created as dc 
+                     FROM department_list d 
+                     ORDER BY UNIX_TIMESTAMP(d.date_created) DESC");
 ?>
 
-<div class="content-wrapper">
   <div class="content-header">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
+    <div class="container-fluid">
       <h1 class="m-0">Lista de Facultades</h1>
-      <a href="javascript:void(0)" id="create_new" class="btn btn-primary btn-sm">
-        <i class="fa fa-plus"></i> Nuevo
-      </a>
+      <hr>
+      <div class="text-right mb-2">
+        <button class="btn btn-primary btn-sm rounded-0" id="create_new">
+          <i class="fa fa-plus"></i> Nuevo
+        </button>
+      </div>
+      <div class="card card-outline card-primary">
+        <div class="card-body">
+          <table class="table table-bordered table-hover text-sm table-striped">
+            <thead>
+              <tr>
+                <th class="text-center">#</th>
+                <th>Fecha de creación</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+                <th class="text-center">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php $i = 1; while($row = $qry->fetch_assoc()): ?>
+                <tr>
+                  <td class="text-center"><?php echo $i++; ?></td>
+                  <td><?php echo date("Y-m-d H:i", strtotime($row['dc'])) ?></td>
+                  <td><?php echo htmlspecialchars($row['name']) ?></td>
+                  <td><?php echo htmlspecialchars($row['description']) ?></td>
+                  <td class="text-center">
+                    <?php if($row['status'] == 1): ?>
+                      <span class="badge badge-success rounded-pill">Activo</span>
+                    <?php else: ?>
+                      <span class="badge badge-danger rounded-pill">Inactivo</span>
+                    <?php endif; ?>
+                  </td>
+                  <td class="text-center">
+                    <div class="dropdown">
+                      <button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">Acción</button>
+                      <div class="dropdown-menu">
+                        <a class="dropdown-item edit_data" href="javascript:void(0)" data-id="<?= $row['id'] ?>">Editar</a>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item delete_data text-danger" href="javascript:void(0)" data-id="<?= $row['id'] ?>">Eliminar</a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              <?php endwhile; ?>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
-  <section class="content">
-    <div class="container-fluid">
-      <?php
-        $qry = $conn->query("SELECT * FROM department_list ORDER BY name ASC");
-        if (!$qry) {
-          echo "<div class='alert alert-danger'>Error al consultar department_list: " . $conn->error . "</div>";
-        }
-      ?>
-      <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Fecha de creación</th>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th>Estado</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody>
-            <?php if ($qry): $i = 1; while($row = $qry->fetch_assoc()): ?>
-              <tr>
-                <td><?= $i++ ?></td>
-                <td><?= date("Y-m-d H:i", strtotime($row['date_created'])) ?></td>
-                <td><?= htmlspecialchars($row['name']) ?></td>
-                <td><?= htmlspecialchars($row['description']) ?></td>
-                <td class="text-center">
-                  <?php
-                    if ($row['status'] == 1)
-                      echo '<span class="badge badge-success">Activo</span>';
-                    else
-                      echo '<span class="badge badge-secondary">Inactivo</span>';
-                  ?>
-                </td>
-                <td class="text-center">
-                  <button class="btn btn-sm btn-primary edit_data" data-id="<?= $row['id'] ?>"><i class="fa fa-edit"></i></button>
-                  <button class="btn btn-sm btn-danger delete_data" data-id="<?= $row['id'] ?>"><i class="fa fa-trash"></i></button>
-                </td>
-              </tr>
-            <?php endwhile; endif; ?>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-</div>
-
 <script>
-$(document).ready(function(){
-  $('#create_new').click(function(){
-    uni_modal("Nueva Facultad", "departments/manage_department.php");
+  $(document).ready(function(){
+    $('#create_new').click(function(){
+      uni_modal("Nueva Facultad", "departments/manage.php", "mid-large");
+    });
+
+    $('.edit_data').click(function(){
+      uni_modal("Editar Facultad", "departments/manage.php?id=" + $(this).attr('data-id'), "mid-large");
+    });
+
+    $('.delete_data').click(function(){
+      _conf("¿Estás seguro de eliminar esta facultad?", "delete_department", [$(this).attr('data-id')]);
+    });
+
+    $('.table').dataTable();
   });
 
-  $('.edit_data').click(function(){
-    uni_modal("Editar Facultad", "departments/manage_department.php?id=" + $(this).attr('data-id'));
-  });
-
-  $('.delete_data').click(function(){
-    _conf("¿Estás seguro de eliminar esta facultad?", "delete_department", [$(this).attr('data-id')]);
-  });
-
-  $('.table').DataTable({
-    columnDefs: [{ orderable: false, targets: [5] }]
-  });
-});
-
-function delete_department(id){
-  start_loader();
-  $.ajax({
-    url: _base_url_ + "classes/Master.php?f=delete_department",
-    method: "POST",
-    data: { id: id },
-    dataType: "json",
-    error: err => {
-      console.error(err);
-      alert_toast("Ocurrió un error.", 'error');
-      end_loader();
-    },
-    success: function(resp){
-      if (resp.status == 'success'){
-        location.reload();
-      } else {
-        alert_toast("Ocurrió un error.", 'error');
+  function delete_department(id){
+    start_loader();
+    $.ajax({
+      url: _base_url_ + "classes/Master.php?f=delete_department",
+      method: "POST",
+      data: { id: id },
+      dataType: "json",
+      error: err => {
+        console.error(err);
+        alert_toast("Ocurrió un error", "error");
         end_loader();
+      },
+      success: function(resp){
+        if(resp.status === 'success'){
+          location.reload();
+        } else {
+          alert_toast("Ocurrió un error", "error");
+          end_loader();
+        }
       }
-    }
-  });
-}
+    });
+  }
 </script>
 
-<?php include('../inc/footer.php'); ?>

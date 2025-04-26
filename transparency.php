@@ -2,6 +2,7 @@
 require_once('config.php');
 include_once('inc/header.php');
 
+// Definir categorías válidas
 $categories = [
   'Aranceles y Matrículas',
   'Escala de Remuneraciones',
@@ -12,8 +13,11 @@ $categories = [
   'Rendición de Cuentas'
 ];
 
-// Determina la categoría seleccionada por GET
+// Definir categoría actual, validar que exista
 $current = $_GET['categoria'] ?? $categories[0];
+if (!in_array($current, $categories)) {
+  $current = $categories[0]; // Si no es válida, usar la primera
+}
 
 // Consulta documentos de la categoría seleccionada
 $qry = $conn->prepare("SELECT * FROM transparency_docs WHERE category = ? ORDER BY uploaded_at DESC");
@@ -28,18 +32,16 @@ $docs = $result->fetch_all(MYSQLI_ASSOC);
     display: flex;
     flex-direction: row;
     gap: 2rem;
+    flex-wrap: wrap;
   }
-
   .doc-list {
     flex: 2;
   }
-
   .category-menu {
     flex: 1;
     border-left: 4px solid #28a745;
     padding-left: 1rem;
   }
-
   .category-menu a {
     display: block;
     padding: 0.8rem 1rem;
@@ -49,25 +51,21 @@ $docs = $result->fetch_all(MYSQLI_ASSOC);
     background: #f8f9fa;
     margin-bottom: 5px;
   }
-
   .category-menu a.active {
     background: #fff;
     font-weight: bold;
     border-left: 5px solid #28a745;
   }
-
   .doc-item {
     display: flex;
     align-items: center;
     padding: 0.6rem 0;
   }
-
   .doc-item i {
     font-size: 1.3rem;
     color: #007bff;
     margin-right: 0.8rem;
   }
-
   .highlight-box {
     background: #fff;
     border-radius: 8px;
@@ -75,13 +73,11 @@ $docs = $result->fetch_all(MYSQLI_ASSOC);
     box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     margin-bottom: 1rem;
   }
-
   .highlight-box h5 {
     margin: 0;
     font-weight: bold;
     color: #007bff;
   }
-
   .highlight-box span {
     display: block;
     color: #555;
@@ -96,20 +92,21 @@ $docs = $result->fetch_all(MYSQLI_ASSOC);
       <i class="fa fa-arrow-left"></i> Regresar al inicio
     </a>
   </div>
+
   <div class="transparency-layout">
 
     <!-- Lista de documentos -->
     <div class="doc-list">
       <div class="highlight-box">
         <h5><?= htmlspecialchars($current) ?></h5>
-        <span>Ver PDF</span>
+        <span>Documentos disponibles</span>
       </div>
 
       <?php if (count($docs) > 0): ?>
         <?php foreach ($docs as $doc): ?>
           <div class="doc-item">
             <i class="fa fa-download"></i>
-            <a href="<?= base_url ?>uploads/transparencia/<?= $doc['filepath'] ?>" target="_blank">
+            <a href="<?= base_url ?><?= htmlspecialchars($doc['filepath']) ?>" target="_blank">
               <?= htmlspecialchars($doc['filename']) ?>
             </a>
           </div>
@@ -123,8 +120,8 @@ $docs = $result->fetch_all(MYSQLI_ASSOC);
     <div class="category-menu">
       <?php foreach ($categories as $cat): ?>
         <a href="transparency.php?categoria=<?= urlencode($cat) ?>"
-           class="<?= $cat == $current ? 'active' : '' ?>">
-          <?= $cat ?>
+           class="<?= ($cat == $current) ? 'active' : '' ?>">
+          <?= htmlspecialchars($cat) ?>
         </a>
       <?php endforeach; ?>
     </div>
@@ -133,3 +130,4 @@ $docs = $result->fetch_all(MYSQLI_ASSOC);
 </div>
 
 <?php include_once('inc/footer.php'); ?>
+

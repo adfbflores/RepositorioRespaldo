@@ -2,6 +2,7 @@
 require_once('../config.php');
 require_once('inc/header.php');
 require_once('inc/navigation.php');
+require_once('inc/topBarNav.php');
 ?>
 
 <div class="wrapper">

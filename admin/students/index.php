@@ -1,10 +1,10 @@
 <?php
-require_once('../../config.php');
-require_once('../inc/header.php');
-require_once('../inc/navigation.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/header.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/navigation.php');
 ?>
 
-<div class="content-wrapper">
+
   <div class="content-header">
     <div class="container-fluid">
       <h1 class="m-0">Lista de Estudiantes</h1>
@@ -70,7 +70,6 @@ require_once('../inc/navigation.php');
       </div>
     </div>
   </section>
-</div>
 
 <?php include('../inc/footer.php'); ?>
 
