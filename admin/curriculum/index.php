@@ -1,7 +1,7 @@
 <?php
-require_once('../../config.php');
-require_once('../inc/header.php');
-require_once('../inc/navigation.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/header.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/navigation.php');
 ?>
 
 <style>

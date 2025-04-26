@@ -1,4 +1,10 @@
 <?php
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/config.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/header.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/Repositoriotesis/admin/inc/navigation.php');
+?>
+
+<?php
 // Consulta los datos del usuario actual
 $user = $conn->query("SELECT * FROM users where id ='".$_settings->userdata('id')."'");
 

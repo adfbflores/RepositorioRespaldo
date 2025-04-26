@@ -102,13 +102,9 @@
                   <?php endwhile; ?>
                 </ul>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="transparency_manage.php">
-                  <i class="fas fa-file-alt"></i>
-                  <span class="nav-text">Transparencia</span>
-                </a>
-
-              </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="<?= base_url ?>transparency.php">Transparencia</a>
+                </li>
               <li class="nav-item">
                 <a href="./?page=about" class="nav-link <?= isset($page) && $page =='about' ? "active" : "" ?>">Nosotros</a>
               </li>

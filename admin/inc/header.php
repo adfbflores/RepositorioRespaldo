@@ -105,8 +105,6 @@ require_once('sess_auth.php');
     
     <script src="<?= htmlspecialchars(base_url, ENT_QUOTES, 'UTF-8') ?>dist/js/script.js"></script>
 
-    <script src="<?= base_url ?>dist/js/script.js"></script>
-
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
     
